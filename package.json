@@ -1,20 +1,23 @@
 {
   "name": "wifi-based-slack-status",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Set your status on Slack based on the WiFi network you are connected to.",
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Indivirtual/wifi-based-slack-status.git"
+    "url": "git+https://github.com/SproOve/slack-status-updater.git"
   },
-  "author": "Hendrik Beenker",
+  "author": "Daniel Jenta",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Indivirtual/wifi-based-slack-status/issues"
+    "url": "https://github.com/SproOve/slack-status-updater/issues"
   },
-  "homepage": "https://blog.indivirtual.nl/update-slack-status-automatically-using-node-js/",
+  "homepage": "https://github.com/SproOve",
   "dependencies": {
-    "axios": "0.16.1",
+    "axios": "^0.27.2",
     "dotenv": "^4.0.0"
+  },
+  "scripts": {
+    "start": "node app.js"
   }
 }

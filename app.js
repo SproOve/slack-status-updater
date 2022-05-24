@@ -2,8 +2,8 @@
 
 const os = require("os");
 const axios = require("axios");
+const url = require("url");
 const execSync = require("child_process").execSync;
-const querystring = require("querystring");
 const config = require("./config");
 
 if (!config.slackToken) {
@@ -40,19 +40,12 @@ function getWinWiFiName() {
 }
 
 function setSlackStatus(token, status) {
+  const params = new url.URLSearchParams({
+    token: token,
+    profile: JSON.stringify(status),
+  });
   return axios
-    .post(
-      "https://slack.com/api/users.profile.set",
-      querystring.stringify({
-        token: token,
-        profile: JSON.stringify(status),
-      }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    )
+    .post("https://slack.com/api/users.profile.set", params.toString())
     .then(function (response) {
       console.log("Set Slack status API response: %j", response.data);
     })
@@ -100,18 +93,9 @@ setInterval(async function () {
 }, config.updateInterval);
 
 async function readUser(token) {
+  const params = new url.URLSearchParams({ token: token });
   return axios
-    .post(
-      "https://slack.com/api/users.profile.get",
-      querystring.stringify({
-        token: token,
-      }),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    )
+    .post("https://slack.com/api/users.profile.get", params.toString())
     .then(function (response) {
       return response.data;
     })
@@ -138,11 +122,16 @@ async function getFreeToChange(userData) {
         !userData.profile.status_text
       ) {
         console.log(
-          "Found a Wifi-Status from this script or status is blank, will change status according to Wifi setup"
+          "Found a Wifi-Status from this script or status is blank, will change status according to Wifi setup."
         );
         freeToChange = true;
       }
     });
+    if (freeToChange === false) {
+      console.log(
+        "Slack-status is set manually and overwrite setup is set to 'false', doing nothing."
+      );
+    }
   }
 
   return freeToChange;
