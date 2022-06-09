@@ -17,6 +17,12 @@ module.exports = {
       status_emoji: ":outside:",
     },
   },
+  showWorkingHoursInStatusText: true,
+  awayOutsideWorkingHours: true,
+  workingHoursFrom: 8,
+  workingMinutesFrom: 30,
+  workingHoursTo: 13,
+  workingMinutesTo: 0,
   overwriteManualStatus: false, // true: ignores manually set status and does change it, false: keeps manually set status
   //updateInterval: 1000 // every second
   //updateInterval: 5000 // every 5 seconds

@@ -1,7 +1,7 @@
 {
-  "name": "wifi-based-slack-status",
-  "version": "0.1.0",
-  "description": "Set your status on Slack based on the WiFi network you are connected to.",
+  "name": "slack-status-updater",
+  "version": "2.0.0",
+  "description": "Set your status on Slack automatically.",
   "main": "app.js",
   "repository": {
     "type": "git",

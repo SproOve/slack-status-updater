@@ -6,6 +6,9 @@ const url = require("url");
 const execSync = require("child_process").execSync;
 const config = require("./config");
 
+var now, actualHour, actualMinutes;
+var workingHoursText = "";
+
 if (!config.slackToken) {
   console.error("Missing Slack token. Set it in config.js");
   process.exit(1);
@@ -78,22 +81,32 @@ setInterval(async function () {
   wiFiName = getWiFiName();
   let userData = await readUser(config.slackToken);
   let freeToChangeStatus = await getFreeToChange(userData);
-
+  setPresence(config.slackToken);
   if (freeToChangeStatus) {
     console.log("Connected WiFi SSID: %s", wiFiName);
+    var status = config.statusByWiFiName[wiFiName];
 
-    const status = config.statusByWiFiName[wiFiName];
+    if (config.showWorkingHoursInStatusText === true) {
+      workingHoursText = getWorkingHoursText();
+    }
     if (!status) {
       console.log("Status not specified for WiFi: %s", wiFiName);
       return;
     }
-    console.log("Setting Slack status to: %j", status);
-    setSlackStatus(config.slackToken, status);
+    let outBoundStatus = {
+      status_text: status.status_text,
+      status_emoji: status.status_emoji,
+    };
+    outBoundStatus.status_text = status.status_text + workingHoursText;
+    console.log("Setting Slack status to: %j", outBoundStatus);
+    setSlackStatus(config.slackToken, outBoundStatus);
   }
 }, config.updateInterval);
 
 async function readUser(token) {
   const params = new url.URLSearchParams({ token: token });
+  now = new Date();
+
   return axios
     .post("https://slack.com/api/users.profile.get", params.toString())
     .then(function (response) {
@@ -117,7 +130,9 @@ async function getFreeToChange(userData) {
         config.statusByWiFiName[wifiSetupKey].status_text;
       if (
         (userData.profile.status_emoji === current_status_emoji &&
-          userData.profile.status_text === current_status_text) ||
+          (userData.profile.status_text === current_status_text ||
+            userData.profile.status_text ===
+              current_status_text + workingHoursText)) ||
         !userData.profile.status_emoji ||
         !userData.profile.status_text
       ) {
@@ -133,6 +148,66 @@ async function getFreeToChange(userData) {
       );
     }
   }
-
   return freeToChange;
+}
+
+function getWorkingHoursText() {
+  var text = "";
+  let stringMinutesTo;
+  let amIWorkingNow = getWorkingStatus();
+  if (amIWorkingNow === true) {
+    if (config.workingMinutesTo <= 9) {
+      stringMinutesTo = "0" + config.workingMinutesTo;
+    } else {
+      stringMinutesTo = config.workingMinutesTo;
+    }
+    text = ` till ${config.workingHoursTo}:${stringMinutesTo}`;
+  }
+  return text;
+}
+
+function getWorkingStatus() {
+  let amIWorkingNow = false;
+  now = new Date();
+  let workingFrom = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    config.workingHoursFrom,
+    config.workingMinutesFrom
+  );
+  let workingTo = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    config.workingHoursTo,
+    config.workingMinutesTo
+  );
+
+  actualHour = now.getHours();
+  actualMinutes = now.getMinutes();
+  if (
+    now.getTime() >= workingFrom.getTime() &&
+    now.getTime() <= workingTo.getTime()
+  ) {
+    amIWorkingNow = true;
+  }
+  return amIWorkingNow;
+}
+
+async function setPresence(token) {
+  let amIWorkingNow = getWorkingStatus();
+  let presence = "auto";
+  if (config.awayOutsideWorkingHours === true && !amIWorkingNow) {
+    presence = "away";
+  }
+  const presenceParams = new url.URLSearchParams({
+    token: token,
+    presence: presence,
+  });
+  axios
+    .post("https://slack.com/api/users.setPresence", presenceParams.toString())
+    .catch(function (error) {
+      console.error("Set Slack presence error: %s", error);
+    });
 }

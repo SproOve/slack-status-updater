@@ -4,7 +4,7 @@ Set your status on Slack based on the WiFi network you are connected to.
 ## How does it work?
 
 The script checks periodically the WiFi network name (SSID) you are connected to and sets your status on Slack according to the mapping defined in [config.js](./config.js).
-Screenshot example: ![Wifi based slack status change screenshot](https://raw.githubusercontent.com/Indivirtual/wifi-based-slack-status/master/docs/set-slack-status-based-on-wifi.png "Wifi based slack status change screenshot")
+Screenshot example: ![Wifi based slack status change screenshot](readme_assets/set-slack-status-based-on-wifi.png "Wifi based slack status change screenshot")
 
 ## Prerequisites
 
@@ -46,5 +46,20 @@ First of all i was missing an option to keep manually set statuses from within S
 Thats, why i've implemented a checkup, if the status, that is currently setup, is a manual one. This option can be turned on/off in the config with the new parameter 
 <span style="color:cyan">**_overwriteManualStatus_**</span>.
 I also renamed the name of the repo, since the intention is to also plan statuses for the fuuture, like abscences during  vacations for the whole year.
+
+----------------------
+
+## Configuration 
+| Syntax | Description |
+| --- | --- | 
+| ```statusByWiFiName```: (*object*) | entries of personal wifi SSIDs as properties. To add an SSID and its setting, simply add the Name of it and open a new subobject with the properties: [status_text] and [status_emoji] |
+|```showWorkingHoursInStatusText```: (*boolean*) | if set to true, the working hours are displayed in the status text example: <img src="readme_assets/workinghoursStatustext.png" alt="drawing" width="300"/> |
+| ```awayOutsideWorkingHours```: (*boolean*) | if set to true, users presence is set to away outside the working hours |
+| ```workingHoursFrom```: (*number*) | allowed values: 0 - 24 |
+| ```workingMinutesFrom```: (*number*) | allowed values: 0 - 59 |
+| ```workingHoursTo```: (*number*) | allowed values: 0 - 24 |
+| ```workingMinutesTo```: (*number*) | allowed values: 0 - 59 |
+| ```overwriteManualStatus```: (*boolean*) | if set to true, a manual set status will be overwritten after the next interval |
+| ```updateInterval```: (*number*) | update interval in miliseconds |
 
 
