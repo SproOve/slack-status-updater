@@ -16,8 +16,9 @@ There you need to do the following:
     - select a name and a workspace and click on "Create App"
 2. Go to the Section "Add features and functionality" and click on "Permissions"
 3. Add the following scopes in the section "User Token Scopes":
-    - users.profile.read
-    - users.profile.write
+    - ```users.profile.read```
+    - ```users.profile.write```
+    - ```users:write``` (since v2.0.0)
 4. Scroll back up and install the "App" to your workspace
 5. Now you should be able to see your Token in the section
 

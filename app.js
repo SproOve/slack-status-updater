@@ -7,7 +7,7 @@ const execSync = require("child_process").execSync;
 const config = require("./config");
 
 var now, actualHour, actualMinutes;
-var workingHoursText = "";
+var workingHoursText = getWorkingHoursText();
 
 if (!config.slackToken) {
   console.error("Missing Slack token. Set it in config.js");
@@ -85,10 +85,6 @@ setInterval(async function () {
   if (freeToChangeStatus) {
     console.log("Connected WiFi SSID: %s", wiFiName);
     var status = config.statusByWiFiName[wiFiName];
-
-    if (config.showWorkingHoursInStatusText === true) {
-      workingHoursText = getWorkingHoursText();
-    }
     if (!status) {
       console.log("Status not specified for WiFi: %s", wiFiName);
       return;
@@ -97,7 +93,9 @@ setInterval(async function () {
       status_text: status.status_text,
       status_emoji: status.status_emoji,
     };
-    outBoundStatus.status_text = status.status_text + workingHoursText;
+    let amIWorkingNow = getWorkingStatus();
+    outBoundStatus.status_text =
+      status.status_text + (amIWorkingNow ? workingHoursText : "");
     console.log("Setting Slack status to: %j", outBoundStatus);
     setSlackStatus(config.slackToken, outBoundStatus);
   }
@@ -154,15 +152,16 @@ async function getFreeToChange(userData) {
 function getWorkingHoursText() {
   var text = "";
   let stringMinutesTo;
-  let amIWorkingNow = getWorkingStatus();
-  if (amIWorkingNow === true) {
-    if (config.workingMinutesTo <= 9) {
-      stringMinutesTo = "0" + config.workingMinutesTo;
-    } else {
-      stringMinutesTo = config.workingMinutesTo;
-    }
-    text = ` till ${config.workingHoursTo}:${stringMinutesTo}`;
+  now = new Date();
+  if (config.workingMinutesTo <= 9) {
+    stringMinutesTo = "0" + config.workingMinutesTo;
+  } else {
+    stringMinutesTo = config.workingMinutesTo;
   }
+  const offset = now.getTimezoneOffset();
+  let offsetInHours = offset / 60;
+  text = ` till ${config.workingHoursTo}:${stringMinutesTo} (UTC${offsetInHours})`;
+
   return text;
 }
 
