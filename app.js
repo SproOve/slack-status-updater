@@ -89,13 +89,20 @@ setInterval(async function () {
       console.log("Status not specified for WiFi: %s", wiFiName);
       return;
     }
-    let outBoundStatus = {
-      status_text: status.status_text,
-      status_emoji: status.status_emoji,
-    };
+
     let amIWorkingNow = getWorkingStatus();
-    outBoundStatus.status_text =
-      status.status_text + (amIWorkingNow ? workingHoursText : "");
+    let outBoundStatus = {
+      status_text:
+        amIWorkingNow || config.awayOutsideWorkingHours === false
+          ? status.status_text + workingHoursText
+          : config.statusWhenAway.status_text,
+      status_emoji:
+        amIWorkingNow || config.awayOutsideWorkingHours === false
+          ? status.status_emoji
+          : config.statusWhenAway.status_emoji,
+    };
+    // outBoundStatus.status_text =
+    //   status.status_text + (amIWorkingNow ? workingHoursText : "");
     console.log("Setting Slack status to: %j", outBoundStatus);
     setSlackStatus(config.slackToken, outBoundStatus);
   }
@@ -122,20 +129,24 @@ async function getFreeToChange(userData) {
     freeToChange = true;
   } else if (userData.profile) {
     Object.keys(config.statusByWiFiName).forEach((wifiSetupKey) => {
+      const away_status_emoji = config.statusWhenAway.status_emoji;
+      const away_status_text = config.statusWhenAway.status_text;
       let current_status_emoji =
         config.statusByWiFiName[wifiSetupKey].status_emoji;
       let current_status_text =
         config.statusByWiFiName[wifiSetupKey].status_text;
       if (
-        (userData.profile.status_emoji === current_status_emoji &&
+        ((userData.profile.status_emoji === current_status_emoji ||
+          userData.profile.status_emoji === away_status_emoji) &&
           (userData.profile.status_text === current_status_text ||
             userData.profile.status_text ===
-              current_status_text + workingHoursText)) ||
+              current_status_text + workingHoursText ||
+            userData.profile.status_text === away_status_text)) ||
         !userData.profile.status_emoji ||
         !userData.profile.status_text
       ) {
         console.log(
-          "Found a Wifi-Status from this script or status is blank, will change status according to Wifi setup."
+          "Found a Wifi-Status from this script or status is blank/away-default, will change status according to Wifi setup."
         );
         freeToChange = true;
       }
@@ -151,17 +162,18 @@ async function getFreeToChange(userData) {
 
 function getWorkingHoursText() {
   var text = "";
-  let stringMinutesTo;
-  now = new Date();
-  if (config.workingMinutesTo <= 9) {
-    stringMinutesTo = "0" + config.workingMinutesTo;
-  } else {
-    stringMinutesTo = config.workingMinutesTo;
+  if (config.showWorkingHoursInStatusText) {
+    let stringMinutesTo;
+    now = new Date();
+    if (config.workingMinutesTo <= 9) {
+      stringMinutesTo = "0" + config.workingMinutesTo;
+    } else {
+      stringMinutesTo = config.workingMinutesTo;
+    }
+    const offset = now.getTimezoneOffset();
+    let offsetInHours = offset / 60;
+    text = ` till ${config.workingHoursTo}:${stringMinutesTo} (UTC${offsetInHours})`;
   }
-  const offset = now.getTimezoneOffset();
-  let offsetInHours = offset / 60;
-  text = ` till ${config.workingHoursTo}:${stringMinutesTo} (UTC${offsetInHours})`;
-
   return text;
 }
 

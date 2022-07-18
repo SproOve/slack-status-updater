@@ -17,6 +17,10 @@ module.exports = {
       status_emoji: ":outside:",
     },
   },
+  statusWhenAway: {
+    status_text: "AWAY",
+    status_emoji: ":away:",
+  },
   showWorkingHoursInStatusText: true,
   awayOutsideWorkingHours: true,
   workingHoursFrom: 8,
