@@ -3,7 +3,11 @@ Set your status on Slack based on the WiFi network you are connected to (with a 
 
 ## How does it work?
 
-The script checks periodically the WiFi network name (SSID) you are connected to and sets your status on Slack according to the mapping defined in [config.js](./config.js).
+The script checks periodically the WiFi network name (SSID) you are connected to and sets your status on Slack according to the mapping defined in [config.js](./config.js).  
+You can additionally set up:  
+- working hours (and working days) shown in your status
+- a predefined AWAY status, which gets switched on outside of your working hours
+- to not overwrite your manual statuses  
 Screenshot example: ![Wifi based slack status change screenshot](readme_assets/set-slack-status-based-on-wifi.png "Wifi based slack status change screenshot")
 
 ## Prerequisites
