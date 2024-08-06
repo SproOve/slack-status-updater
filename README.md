@@ -7,8 +7,9 @@ The script checks periodically the WiFi network name (SSID) you are connected to
 You can additionally set up:  
 - working hours (and working days) shown in your status
 - a predefined AWAY status, which gets switched on outside of your working hours
-- to not overwrite your manual statuses  
-Screenshot example: ![Wifi based slack status change screenshot](readme_assets/set-slack-status-based-on-wifi.png "Wifi based slack status change screenshot")
+- to not overwrite your manual statuses    
+
+Screenshot example of the Wifi based function: ![Wifi based slack status change screenshot](readme_assets/set-slack-status-based-on-wifi.png "Wifi based slack status change screenshot")
 
 ## Prerequisites
 
