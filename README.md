@@ -1,5 +1,5 @@
 # slack-status-updater
-Set your status on Slack based on the WiFi network you are connected to.
+Set your status on Slack based on the WiFi network you are connected to (with a few adjustments 🤓).
 
 ## How does it work?
 
