@@ -62,9 +62,9 @@ I also renamed the name of the repo, since the intention is to also plan statuse
 |```showWorkingHoursInStatusText```: (*boolean*) | if set to true, the working hours are displayed in the status text example: <img src="readme_assets/workinghoursStatustext.png" alt="drawing" width="300"/> |
 | ```awayOutsideWorkingHours```: (*boolean*) | if set to true, users presence is set to away outside the working hours |
 |```workingDays```: (*array of numbers*) | allowed values 0 - 6 separated by comma |
-| ```workingHoursFrom```: (*number*) | allowed values: 0 - 24 |
+| ```workingHoursFrom```: (*number*) | allowed values: 0 - 23 |
 | ```workingMinutesFrom```: (*number*) | allowed values: 0 - 59 |
-| ```workingHoursTo```: (*number*) | allowed values: 0 - 24 |
+| ```workingHoursTo```: (*number*) | allowed values: 0 - 23 |
 | ```workingMinutesTo```: (*number*) | allowed values: 0 - 59 |
 | ```overwriteManualStatus```: (*boolean*) | if set to true, a manual set status will be overwritten after the next interval |
 | ```updateInterval```: (*number*) | update interval in miliseconds |
