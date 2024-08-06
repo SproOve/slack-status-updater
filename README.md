@@ -56,6 +56,7 @@ I also renamed the name of the repo, since the intention is to also plan statuse
 | ```statusByWiFiName```: (*object*) | entries of personal wifi SSIDs as properties. To add an SSID and its setting, simply add the Name of it and open a new subobject with the properties: [status_text] and [status_emoji] |
 |```showWorkingHoursInStatusText```: (*boolean*) | if set to true, the working hours are displayed in the status text example: <img src="readme_assets/workinghoursStatustext.png" alt="drawing" width="300"/> |
 | ```awayOutsideWorkingHours```: (*boolean*) | if set to true, users presence is set to away outside the working hours |
+|```workingDays```: (*array of numbers*) | allowed values 0 - 6 separated by comma |
 | ```workingHoursFrom```: (*number*) | allowed values: 0 - 24 |
 | ```workingMinutesFrom```: (*number*) | allowed values: 0 - 59 |
 | ```workingHoursTo```: (*number*) | allowed values: 0 - 24 |

@@ -90,7 +90,7 @@ setInterval(async function () {
       return;
     }
 
-    let amIWorkingNow = getWorkingStatus();
+    let [amIWorkingNow, todaysWorkingHoursFinished] = getWorkingStatus();
     let outBoundStatus = {
       status_text:
         amIWorkingNow || config.awayOutsideWorkingHours === false
@@ -101,8 +101,14 @@ setInterval(async function () {
           ? status.status_emoji
           : config.statusWhenAway.status_emoji,
     };
-    // outBoundStatus.status_text =
-    //   status.status_text + (amIWorkingNow ? workingHoursText : "");
+    if (outBoundStatus.status_text === config.statusWhenAway.status_text) {
+      let nextWorkingDateTime = getNextWorkingDateTime();
+      const timestampInSeconds = Math.floor(
+        nextWorkingDateTime.getTime() / 1000
+      );
+      outBoundStatus.status_expiration = timestampInSeconds;
+    }
+
     console.log("Setting Slack status to: %j", outBoundStatus);
     setSlackStatus(config.slackToken, outBoundStatus);
   }
@@ -179,6 +185,73 @@ function getWorkingHoursText() {
 
 function getWorkingStatus() {
   let amIWorkingNow = false;
+  let todaysWorkingHoursFinished = false;
+  now = new Date();
+  let [workingFrom, workingTo] = getWorkingFromToDateTimes();
+
+  actualHour = now.getHours();
+  actualMinutes = now.getMinutes();
+  let todayIsAWorkingDay = isTodayAWorkingDay();
+  if (
+    now.getTime() >= workingFrom.getTime() &&
+    now.getTime() <= workingTo.getTime() &&
+    todayIsAWorkingDay === true
+  ) {
+    amIWorkingNow = true;
+  } else if (now.getTime() >= workingTo.getTime()) {
+    todaysWorkingHoursFinished = true;
+  }
+  return [amIWorkingNow, todaysWorkingHoursFinished];
+}
+
+function isTodayAWorkingDay() {
+  let workingDays = config.workingDays;
+  workingDays.sort();
+  let todayIndex = workingDays.findIndex((day) => {
+    return day === now.getDay();
+  });
+  if (todayIndex === -1) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function getNextWorkingDateTime() {
+  let now = new Date();
+  let nextWorkingDateTime;
+  let todayIsAWorkingDay = isTodayAWorkingDay();
+  let workingDays = config.workingDays;
+  workingDays.sort();
+  // let todayIndex = workingDays.findIndex((day) => {
+  //   return day === now.getDay();
+  // });
+  let [workingFrom, workingTo] = getWorkingFromToDateTimes();
+  // if (todayIsAWorkingDay === false) {
+  let [amIWorkingNow, todaysWorkingHoursFinished] = getWorkingStatus();
+  if (
+    (!amIWorkingNow && todaysWorkingHoursFinished === true) ||
+    !todayIsAWorkingDay
+  ) {
+    for (let addDays = 1; addDays <= 7; addDays++) {
+      let loopDate = new Date();
+      loopDate.setDate(now.getDate() + addDays);
+      let loopDayIndex = workingDays.findIndex((day) => {
+        return day === loopDate.getDay();
+      });
+      if (loopDayIndex !== -1) {
+        loopDate.setHours(workingFrom.getHours());
+        loopDate.setMinutes(workingFrom.getMinutes());
+        nextWorkingDateTime = loopDate;
+        break;
+      }
+    }
+  }
+  // }
+  return nextWorkingDateTime;
+}
+
+function getWorkingFromToDateTimes() {
   now = new Date();
   let workingFrom = new Date(
     now.getFullYear(),
@@ -194,22 +267,19 @@ function getWorkingStatus() {
     config.workingHoursTo,
     config.workingMinutesTo
   );
-
-  actualHour = now.getHours();
-  actualMinutes = now.getMinutes();
-  if (
-    now.getTime() >= workingFrom.getTime() &&
-    now.getTime() <= workingTo.getTime()
-  ) {
-    amIWorkingNow = true;
-  }
-  return amIWorkingNow;
+  return [workingFrom, workingTo];
 }
 
 async function setPresence(token) {
-  let amIWorkingNow = getWorkingStatus();
+  let [amIWorkingNow, todaysWorkingHoursFinished] = getWorkingStatus();
+  let userData = await readUser(config.slackToken);
+  let freeToChange = await getFreeToChange(userData);
   let presence = "auto";
-  if (config.awayOutsideWorkingHours === true && !amIWorkingNow) {
+  if (
+    config.awayOutsideWorkingHours === true &&
+    !amIWorkingNow &&
+    freeToChange === true
+  ) {
     presence = "away";
   }
   const presenceParams = new url.URLSearchParams({

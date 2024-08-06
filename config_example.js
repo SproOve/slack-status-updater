@@ -1,7 +1,8 @@
 //Rename this file to just "config.js" after editing
 
 module.exports = {
-  slackToken: "xoxp-.....", //Paste your own slack token here
+  slackToken: "xoxp-.....", //Paste your own slack token here or comment this line and uncomment next
+  // slackToken: process.env["SLACK_TOKEN"],
   statusByWiFiName: {
     OFFICE: {
       //wifi SSID
@@ -23,9 +24,10 @@ module.exports = {
   },
   showWorkingHoursInStatusText: true,
   awayOutsideWorkingHours: true,
-  workingHoursFrom: 8,
+  workingDays: [1, 2, 3, 4, 5], // Sunday = 0, Monday = 1,...
+  workingHoursFrom: 7,
   workingMinutesFrom: 30,
-  workingHoursTo: 13,
+  workingHoursTo: 16,
   workingMinutesTo: 0,
   overwriteManualStatus: false, // true: ignores manually set status and does change it, false: keeps manually set status
   //updateInterval: 1000 // every second
